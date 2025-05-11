@@ -14,7 +14,22 @@ def index():
 
 @main.route('/books', methods=['GET'])
 def get_books():
-    books = Book.query.all()
+    author = request.args.get('author')
+    title = request.args.get('title')
+    is_available = request.args.get('is_available')
+
+    query = Book.query
+
+    if author:
+        query = query.filter(Book.author.ilike(f"%{author}%"))
+    if title:
+        query = query.filter(Book.title.ilike(f"%{title}%"))
+    if is_available is not None:
+        # Преобразуем строку в bool
+        is_available_bool = is_available.lower() in ['true', '1', 'yes']
+        query = query.filter(Book.is_available == is_available_bool)
+
+    books = query.all()
     return jsonify(books_schema.dump(books))
 
 @main.route('/books/<int:book_id>', methods=['GET'])
