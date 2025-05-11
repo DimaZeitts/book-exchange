@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flasgger import Swagger
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -18,4 +19,8 @@ def create_app():
     from .routes import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
+    Swagger(app)
+
     return app
+
+from . import models
