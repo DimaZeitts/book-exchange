@@ -2,9 +2,16 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask import Blueprint
 
 db = SQLAlchemy()
 migrate = Migrate()
+
+main = Blueprint('main', __name__)
+
+@main.route('/')
+def index():
+    return {"message": "Book Exchange API is running!"}
 
 def create_app():
     app = Flask(__name__)
