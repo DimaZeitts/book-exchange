@@ -1,35 +1,8 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from app import create_app, db
 from flask_migrate import Migrate
-from flask_cors import CORS
-from flask import Blueprint
-
-db = SQLAlchemy()
-migrate = Migrate()
-
-main = Blueprint('main', __name__)
-
-@main.route('/')
-def index():
-    return {"message": "Book Exchange API is running!"}
-
-def create_app():
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@db:5432/postgres'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    db.init_app(app)
-    migrate.init_app(app, db)
-    CORS(app)
-
-    from .routes import main as main_blueprint
-    app.register_blueprint(main_blueprint)
-
-    return app
-
-from app import create_app
 
 app = create_app()
+migrate = Migrate(app, db)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5050)

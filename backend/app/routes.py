@@ -51,7 +51,13 @@ def get_books():
         query = query.filter(Book.is_available == is_available_bool)
 
     books = query.all()
-    return jsonify(books_schema.dump(books))
+    # Добавляем owner_username в ответ
+    result = []
+    for b in books:
+        book_data = book_schema.dump(b)
+        book_data['owner_username'] = b.owner.username if b.owner else None
+        result.append(book_data)
+    return jsonify(result)
 
 @main.route('/books/<int:book_id>', methods=['GET'])
 def get_book(book_id):
@@ -312,10 +318,12 @@ def delete_user(user_id):
       404:
         description: Пользователь не найден
     """
-    user = User.query.get_or_404(user_id)
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     db.session.delete(user)
     db.session.commit()
-    return '', 204
+    return jsonify({'message': 'User deleted'}), 200
 
 @main.route('/exchanges', methods=['GET'])
 def get_exchanges():
@@ -326,13 +334,24 @@ def get_exchanges():
       200:
         description: Список обменов
     """
-    exchanges = Exchange.query.all()
+    user_id = request.args.get('user_id')
+    owner_id = request.args.get('owner_id')
+    query = Exchange.query
+    if user_id:
+        query = query.filter(Exchange.user_id == int(user_id))
+    if owner_id:
+        # Получить все книги пользователя и их id
+        user_books = Book.query.filter(Book.owner_id == int(owner_id)).all()
+        user_book_ids = [b.id for b in user_books]
+        query = query.filter(Exchange.book_id.in_(user_book_ids))
+    exchanges = query.all()
     return jsonify([
         {
             'id': e.id,
             'user_id': e.user_id,
             'book_id': e.book_id,
-            'timestamp': e.timestamp.isoformat()
+            'place': e.place,
+            'timestamp': e.timestamp.isoformat() if e.timestamp else None
         } for e in exchanges
     ])
 
@@ -350,11 +369,14 @@ def create_exchange():
           required:
             - user_id
             - book_id
+            - place
           properties:
             user_id:
               type: integer
             book_id:
               type: integer
+            place:
+              type: string
     responses:
       201:
         description: Обмен создан
@@ -370,14 +392,15 @@ def create_exchange():
     if not user or not book:
         return jsonify({'error': 'User or Book not found'}), 400
     try:
-        exchange = Exchange(user_id=data['user_id'], book_id=data['book_id'])
+        exchange = Exchange(user_id=data['user_id'], book_id=data['book_id'], place=data.get('place'))
         db.session.add(exchange)
         db.session.commit()
         return jsonify({
             'id': exchange.id,
             'user_id': exchange.user_id,
             'book_id': exchange.book_id,
-            'timestamp': exchange.timestamp.isoformat()
+            'place': exchange.place,
+            'timestamp': exchange.timestamp.isoformat() if exchange.timestamp else None
         }), 201
     except Exception as e:
         db.session.rollback()
