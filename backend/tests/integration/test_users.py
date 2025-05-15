@@ -1,5 +1,6 @@
 import pytest
 from app import create_app, db
+import uuid
 
 def user_payload(username="testuser", email="testuser@example.com"):
     return {"username": username, "email": email}
@@ -17,11 +18,13 @@ def client():
             db.drop_all()
 
 def test_create_user(client):
-    response = client.post('/users', json=user_payload())
+    username = f"testuser_{uuid.uuid4()}"
+    email = f"{username}@example.com"
+    response = client.post('/users', json=user_payload(username, email))
     assert response.status_code == 201
     data = response.get_json()
-    assert data['username'] == "testuser"
-    assert data['email'] == "testuser@example.com"
+    assert data['username'] == username
+    assert data['email'] == email
 
 def test_create_user_empty_username(client):
     response = client.post('/users', json=user_payload(username=""))

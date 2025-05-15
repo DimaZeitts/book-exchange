@@ -323,7 +323,7 @@ def delete_user(user_id):
         return jsonify({'error': 'User not found'}), 404
     db.session.delete(user)
     db.session.commit()
-    return jsonify({'message': 'User deleted'}), 200
+    return '', 204
 
 @main.route('/exchanges', methods=['GET'])
 def get_exchanges():

@@ -19,9 +19,8 @@ test_backend:
     - pip install --upgrade pip
     - pip install -r backend/requirements.txt
     - cd backend
-    # Ждём, пока Postgres будет готов
     - until pg_isready -h postgres -U postgres; do sleep 1; done
-    # Применяем миграции, если есть
     - flask db upgrade
   script:
-    - PYTHONPATH=. pytest
+    - pip install -r backend/requirements.txt
+    - pytest tests/unit
