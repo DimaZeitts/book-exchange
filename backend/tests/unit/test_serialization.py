@@ -1,6 +1,9 @@
 import pytest
 
 class Book:
+    """
+    Пример класса Book для тестирования сериализации/десериализации.
+    """
     def __init__(self, title, author, description, owner_id):
         self.title = title
         self.author = author
@@ -8,6 +11,9 @@ class Book:
         self.owner_id = owner_id
 
 def serialize_book(book):
+    """
+    Преобразует объект Book в словарь для сериализации.
+    """
     return {
         "title": book.title,
         "author": book.author,
@@ -16,6 +22,9 @@ def serialize_book(book):
     }
 
 def deserialize_book(data):
+    """
+    Преобразует словарь обратно в объект Book.
+    """
     return Book(
         title=data["title"],
         author=data["author"],
@@ -24,6 +33,9 @@ def deserialize_book(data):
     )
 
 def test_book_serialization():
+    """
+    Проверяет корректность сериализации и десериализации Book.
+    """
     book = Book("BookTitle", "AuthorName", "Desc", 1)
     data = serialize_book(book)
     assert data == {

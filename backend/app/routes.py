@@ -11,50 +11,44 @@ books_schema = BookSchema(many=True)
 
 @main.route('/')
 def index():
+    """
+    Корневой endpoint API.
+    Возвращает статус работы сервиса.
+    :return: JSON с сообщением о статусе API.
+    """
     return {"message": "Book Exchange API is running!"}
 
 @main.route('/books', methods=['GET'])
 def get_books():
     """
-    Получить список книг с фильтрацией
-    ---
-    parameters:
-      - name: author
-        in: query
-        type: string
-        description: Автор книги
-      - name: title
-        in: query
-        type: string
-        description: Название книги
-      - name: is_available
-        in: query
-        type: boolean
-        description: Доступна ли книга для обмена
-    responses:
-      200:
-        description: Список книг
+    Получить список книг с возможной фильтрацией по автору, названию и доступности.
+    :query author: (str, optional) — фильтрация по автору (подстрока, регистронезависимо)
+    :query title: (str, optional) — фильтрация по названию (подстрока, регистронезависимо)
+    :query is_available: (bool, optional) — фильтрация по доступности
+    :return: JSON-список книг с owner_username
     """
-    author = request.args.get('author')
-    title = request.args.get('title')
-    is_available = request.args.get('is_available')
+    author = request.args.get('author')  # Получаем фильтр по автору
+    title = request.args.get('title')    # Получаем фильтр по названию
+    is_available = request.args.get('is_available')  # Фильтр по доступности
 
-    query = Book.query
+    query = Book.query  # Базовый запрос
 
+    # Фильтрация по автору
     if author:
         query = query.filter(Book.author.ilike(f"%{author}%"))
+    # Фильтрация по названию
     if title:
         query = query.filter(Book.title.ilike(f"%{title}%"))
+    # Фильтрация по доступности (строка -> bool)
     if is_available is not None:
-        # Преобразуем строку в bool
         is_available_bool = is_available.lower() in ['true', '1', 'yes']
         query = query.filter(Book.is_available == is_available_bool)
 
-    books = query.all()
-    # Добавляем owner_username в ответ
+    books = query.all()  # Получаем книги
     result = []
     for b in books:
         book_data = book_schema.dump(b)
+        # Добавляем имя владельца
         book_data['owner_username'] = b.owner.username if b.owner else None
         result.append(book_data)
     return jsonify(result)
@@ -62,19 +56,9 @@ def get_books():
 @main.route('/books/<int:book_id>', methods=['GET'])
 def get_book(book_id):
     """
-    Получить книгу по id
-    ---
-    parameters:
-      - name: book_id
-        in: path
-        type: integer
-        required: true
-        description: ID книги
-    responses:
-      200:
-        description: Книга
-      404:
-        description: Книга не найдена
+    Получить книгу по id.
+    :param book_id: int — ID книги
+    :return: JSON с данными книги или 404 если не найдена
     """
     book = Book.query.get_or_404(book_id)
     return jsonify(book_schema.dump(book))
@@ -82,30 +66,9 @@ def get_book(book_id):
 @main.route('/books', methods=['POST'])
 def create_book():
     """
-    Добавить новую книгу
-    ---
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          id: Book
-          required:
-            - title
-            - author
-            - owner_id
-          properties:
-            title:
-              type: string
-            author:
-              type: string
-            description:
-              type: string
-            owner_id:
-              type: integer
-    responses:
-      201:
-        description: Книга создана
+    Добавить новую книгу.
+    Ожидает JSON с title, author, description (опционально), owner_id.
+    :return: JSON с созданной книгой или ошибкой
     """
     data = request.get_json()
     # Валидация обязательных полей
@@ -129,35 +92,9 @@ def create_book():
 @main.route('/books/<int:book_id>', methods=['PUT'])
 def update_book(book_id):
     """
-    Обновить книгу по id
-    ---
-    parameters:
-      - name: book_id
-        in: path
-        type: integer
-        required: true
-        description: ID книги
-      - in: body
-        name: body
-        required: true
-        schema:
-          id: BookUpdate
-          properties:
-            title:
-              type: string
-            author:
-              type: string
-            description:
-              type: string
-            owner_id:
-              type: integer
-            is_available:
-              type: boolean
-    responses:
-      200:
-        description: Книга обновлена
-      404:
-        description: Книга не найдена
+    Обновить книгу по id.
+    :param book_id: int — ID книги
+    :return: JSON с обновлённой книгой или ошибкой
     """
     book = Book.query.get_or_404(book_id)
     data = request.get_json()
@@ -174,19 +111,9 @@ def update_book(book_id):
 @main.route('/books/<int:book_id>', methods=['DELETE'])
 def delete_book(book_id):
     """
-    Удалить книгу по id
-    ---
-    parameters:
-      - name: book_id
-        in: path
-        type: integer
-        required: true
-        description: ID книги
-    responses:
-      204:
-        description: Книга удалена
-      404:
-        description: Книга не найдена
+    Удалить книгу по id.
+    :param book_id: int — ID книги
+    :return: пустой ответ с кодом 204 или ошибкой
     """
     book = Book.query.get_or_404(book_id)
     db.session.delete(book)
@@ -196,32 +123,17 @@ def delete_book(book_id):
 @main.route('/users', methods=['POST'])
 def create_user():
     """
-    Создать пользователя
-    ---
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          id: User
-          required:
-            - username
-            - email
-          properties:
-            username:
-              type: string
-            email:
-              type: string
-    responses:
-      201:
-        description: Пользователь создан
+    Создать пользователя.
+    Ожидает JSON с username и email.
+    Проверяет уникальность username и email.
+    :return: JSON с созданным пользователем или ошибкой
     """
     data = request.get_json()
     # Валидация обязательных полей
     for field in ['username', 'email']:
         if not data.get(field):
             return jsonify({'error': f'Missing or empty field: {field}'}), 400
-    # Проверка уникальности email
+    # Проверка уникальности email и username
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'error': 'Email already exists'}), 409
     if User.query.filter_by(username=data['username']).first():
@@ -238,11 +150,8 @@ def create_user():
 @main.route('/users', methods=['GET'])
 def get_users():
     """
-    Получить список пользователей
-    ---
-    responses:
-      200:
-        description: Список пользователей
+    Получить список всех пользователей.
+    :return: JSON-список пользователей
     """
     users = User.query.all()
     return jsonify([{'id': u.id, 'username': u.username, 'email': u.email} for u in users])
@@ -250,19 +159,9 @@ def get_users():
 @main.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     """
-    Получить пользователя по id
-    ---
-    parameters:
-      - name: user_id
-        in: path
-        type: integer
-        required: true
-        description: ID пользователя
-    responses:
-      200:
-        description: Пользователь
-      404:
-        description: Пользователь не найден
+    Получить пользователя по id.
+    :param user_id: int — ID пользователя
+    :return: JSON с данными пользователя или 404 если не найден
     """
     user = User.query.get_or_404(user_id)
     return jsonify({'id': user.id, 'username': user.username, 'email': user.email})
@@ -270,29 +169,9 @@ def get_user(user_id):
 @main.route('/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     """
-    Обновить пользователя по id
-    ---
-    parameters:
-      - name: user_id
-        in: path
-        type: integer
-        required: true
-        description: ID пользователя
-      - in: body
-        name: body
-        required: true
-        schema:
-          id: UserUpdate
-          properties:
-            username:
-              type: string
-            email:
-              type: string
-    responses:
-      200:
-        description: Пользователь обновлён
-      404:
-        description: Пользователь не найден
+    Обновить пользователя по id.
+    :param user_id: int — ID пользователя
+    :return: JSON с обновлённым пользователем или ошибкой
     """
     user = User.query.get_or_404(user_id)
     data = request.get_json()
@@ -304,19 +183,9 @@ def update_user(user_id):
 @main.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     """
-    Удалить пользователя по id
-    ---
-    parameters:
-      - name: user_id
-        in: path
-        type: integer
-        required: true
-        description: ID пользователя
-    responses:
-      204:
-        description: Пользователь удалён
-      404:
-        description: Пользователь не найден
+    Удалить пользователя по id.
+    :param user_id: int — ID пользователя
+    :return: пустой ответ с кодом 204 или ошибкой
     """
     user = User.query.get(user_id)
     if not user:
@@ -328,11 +197,11 @@ def delete_user(user_id):
 @main.route('/exchanges', methods=['GET'])
 def get_exchanges():
     """
-    Получить список обменов
-    ---
-    responses:
-      200:
-        description: Список обменов
+    Получить список обменов.
+    Можно фильтровать по user_id (инициатор) и owner_id (владелец книги).
+    :query user_id: int — фильтрация по инициатору обмена
+    :query owner_id: int — фильтрация по владельцу книги
+    :return: JSON-список обменов
     """
     user_id = request.args.get('user_id')
     owner_id = request.args.get('owner_id')
@@ -358,28 +227,10 @@ def get_exchanges():
 @main.route('/exchanges', methods=['POST'])
 def create_exchange():
     """
-    Создать обмен
-    ---
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          id: Exchange
-          required:
-            - user_id
-            - book_id
-            - place
-          properties:
-            user_id:
-              type: integer
-            book_id:
-              type: integer
-            place:
-              type: string
-    responses:
-      201:
-        description: Обмен создан
+    Создать обмен.
+    Ожидает JSON с user_id, book_id, place.
+    Проверяет существование пользователя и книги.
+    :return: JSON с созданным обменом или ошибкой
     """
     data = request.get_json()
     # Валидация обязательных полей
@@ -409,19 +260,9 @@ def create_exchange():
 @main.route('/exchanges/<int:exchange_id>', methods=['DELETE'])
 def delete_exchange(exchange_id):
     """
-    Удалить обмен по id
-    ---
-    parameters:
-      - name: exchange_id
-        in: path
-        type: integer
-        required: true
-        description: ID обмена
-    responses:
-      204:
-        description: Обмен удалён
-      404:
-        description: Обмен не найден
+    Удалить обмен по id.
+    :param exchange_id: int — ID обмена
+    :return: пустой ответ с кодом 204 или ошибкой
     """
     exchange = Exchange.query.get_or_404(exchange_id)
     db.session.delete(exchange)
@@ -431,11 +272,8 @@ def delete_exchange(exchange_id):
 @main.route('/reviews', methods=['GET'])
 def get_reviews():
     """
-    Получить список отзывов
-    ---
-    responses:
-      200:
-        description: Список отзывов
+    Получить список всех отзывов.
+    :return: JSON-список отзывов
     """
     reviews = Review.query.all()
     return jsonify([
@@ -452,31 +290,10 @@ def get_reviews():
 @main.route('/reviews', methods=['POST'])
 def create_review():
     """
-    Создать отзыв
-    ---
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          id: Review
-          required:
-            - user_id
-            - book_id
-            - text
-            - rating
-          properties:
-            user_id:
-              type: integer
-            book_id:
-              type: integer
-            text:
-              type: string
-            rating:
-              type: integer
-    responses:
-      201:
-        description: Отзыв создан
+    Создать отзыв.
+    Ожидает JSON с user_id, book_id, text, rating.
+    Проверяет существование пользователя и книги, а также валидность рейтинга.
+    :return: JSON с созданным отзывом или ошибкой
     """
     data = request.get_json()
     # Валидация обязательных полей
@@ -515,19 +332,9 @@ def create_review():
 @main.route('/reviews/<int:review_id>', methods=['DELETE'])
 def delete_review(review_id):
     """
-    Удалить отзыв по id
-    ---
-    parameters:
-      - name: review_id
-        in: path
-        type: integer
-        required: true
-        description: ID отзыва
-    responses:
-      204:
-        description: Отзыв удалён
-      404:
-        description: Отзыв не найден
+    Удалить отзыв по id.
+    :param review_id: int — ID отзыва
+    :return: пустой ответ с кодом 204 или ошибкой
     """
     review = Review.query.get_or_404(review_id)
     db.session.delete(review)
