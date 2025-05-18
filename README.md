@@ -80,6 +80,7 @@ docker-compose exec backend flask db upgrade
 **3. Запустите фронтенд (если не в Docker):**
 ```bash
 cd frontend
+rm -rf node_modules
 npm install (если запускаете у себя на устройстве впервые)
 npm start
 ```
