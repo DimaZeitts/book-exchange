@@ -1,1 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+.env.*
 .DS_Store
+
+# Flask
+instance/
+.mypy_cache/
+.coverage
+htmlcov/
+db.sqlite3
+
+# Alembic
+migrations/versions/__pycache__/
+
+# React/Node
+node_modules/
+build/
+dist/
+.npm/
+
+# VSCode/IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+Thumbs.db

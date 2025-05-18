@@ -13,6 +13,7 @@ def client():
         with app.app_context():
             db.drop_all()
 
+
 def create_user(client, username="testuser", email="testuser@example.com"):
     response = client.post('/users', json={
         "username": username,
@@ -20,6 +21,7 @@ def create_user(client, username="testuser", email="testuser@example.com"):
     })
     assert response.status_code == 201
     return response.get_json()["id"]
+
 
 def test_create_book(client):
     user_id = create_user(client)
@@ -32,6 +34,7 @@ def test_create_book(client):
     assert response.status_code == 201
     data = response.get_json()
     assert data['title'] == "Test Book"
+
 
 def test_get_books(client):
     user_id = create_user(client)
@@ -47,6 +50,7 @@ def test_get_books(client):
     assert isinstance(data, list)
     assert len(data) == 1
 
+
 def test_update_book(client):
     user_id = create_user(client)
     client.post('/books', json={
@@ -61,6 +65,7 @@ def test_update_book(client):
     assert response.status_code == 200
     data = response.get_json()
     assert data['title'] == "Updated Title"
+
 
 def test_delete_book(client):
     user_id = create_user(client)

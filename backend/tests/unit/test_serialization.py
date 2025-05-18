@@ -1,5 +1,3 @@
-import pytest
-
 class Book:
     """
     Пример класса Book для тестирования сериализации/десериализации.
@@ -21,6 +19,7 @@ def serialize_book(book):
         "owner_id": book.owner_id
     }
 
+
 def deserialize_book(data):
     """
     Преобразует словарь обратно в объект Book.
@@ -31,6 +30,7 @@ def deserialize_book(data):
         description=data["description"],
         owner_id=data["owner_id"]
     )
+
 
 def test_book_serialization():
     """

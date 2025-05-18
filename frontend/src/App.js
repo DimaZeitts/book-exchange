@@ -405,7 +405,8 @@ function App() {
       const res = await fetch(`${API_URL}/users?email=${encodeURIComponent(authForm.email)}`);
       const users = await res.json();
       if (users.length > 0) {
-        setAuthError('Пользователь с такой почтой уже зарегистрирован');
+        const data = await res.json();
+        setAuthError(data.error);
         setAuthLoading(false);
         return;
       }

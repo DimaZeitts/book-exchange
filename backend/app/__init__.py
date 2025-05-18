@@ -13,30 +13,27 @@ from flasgger import Swagger
 db = SQLAlchemy()
 migrate = Migrate()
 
+
 def create_app():
     """
     Фабрика приложения Flask.
-    Создаёт и настраивает Flask-приложение, подключает расширения, регистрирует blueprints и документацию Swagger.
+    Создаёт и настраивает Flask-приложение,
+    подключает расширения, регистрирует blueprints и документацию Swagger.
     :return: Flask app
     """
     app = Flask(__name__)
-    # Настройки подключения к PostgreSQL
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@db:5432/postgres'
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        'postgresql://postgres:postgres@db:5432/postgres'
+    )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Инициализация расширений
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app)
 
-    # Регистрация blueprint с основными маршрутами
     from .routes import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    # Подключение Swagger для автодокументации
     Swagger(app)
 
     return app
-
-# Импорт моделей для Alembic и других расширений
-from . import models
