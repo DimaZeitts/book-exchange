@@ -9,7 +9,7 @@
 ## Стек технологий
 
 - **Backend:** Python, Flask, SQLAlchemy, Alembic, Marshmallow, PostgreSQL, Docker
-- **Frontend:** React, Axios, Material-UI (или ваш UI-фреймворк)
+- **Frontend:** React
 - **Тесты:** Pytest (unit и integration)
 - **Документация:** Swagger (Flasgger)
 - **CI/CD:** GitLab CI
@@ -147,7 +147,7 @@ Swagger доступен по адресу:
 
 ### Инструкция по восстановлению работы базы данных
 
-1. **Остановите все контейнеры и удалите тома (если нужно начать с чистой базы):**
+1. **Остановите все контейнеры и удалите тома:**
    ```bash
    docker-compose down -v
    ```
