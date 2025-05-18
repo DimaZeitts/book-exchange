@@ -21,3 +21,4 @@ marshmallow==3.21.2
 flasgger==0.9.7.1
 pytest
 pytest-flask
+flake8
