@@ -68,7 +68,12 @@ def test_create_review(client):
     book_id = create_book(client, user_id)
     resp = client.post(
         '/reviews',
-        json={"user_id": user_id, "book_id": book_id, "text": "Nice!", "rating": 5}
+        json={
+            "user_id": user_id,
+            "book_id": book_id,
+            "text": "Nice!",
+            "rating": 5
+        }
     )
     assert resp.status_code == 201
     data = resp.get_json()
@@ -86,7 +91,12 @@ def test_create_review_invalid_rating(client):
     book_id = create_book(client, user_id)
     resp = client.post(
         '/reviews',
-        json={"user_id": user_id, "book_id": book_id, "text": "Bad", "rating": -1}
+        json={
+            "user_id": user_id,
+            "book_id": book_id,
+            "text": "Bad",
+            "rating": -1
+        }
     )
     assert resp.status_code == 400 or resp.status_code == 422
 
@@ -100,7 +110,12 @@ def test_get_reviews(client):
     book_id = create_book(client, user_id)
     client.post(
         '/reviews',
-        json={"user_id": user_id, "book_id": book_id, "text": "Nice!", "rating": 5}
+        json={
+            "user_id": user_id,
+            "book_id": book_id,
+            "text": "Nice!",
+            "rating": 5
+        }
     )
     resp = client.get('/reviews')
     assert resp.status_code == 200
@@ -118,7 +133,12 @@ def test_delete_review(client):
     book_id = create_book(client, user_id)
     resp = client.post(
         '/reviews',
-        json={"user_id": user_id, "book_id": book_id, "text": "Nice!", "rating": 5}
+        json={
+            "user_id": user_id,
+            "book_id": book_id,
+            "text": "Nice!",
+            "rating": 5
+        }
     )
     review_id = resp.get_json()['id']
     del_resp = client.delete(f'/reviews/{review_id}')

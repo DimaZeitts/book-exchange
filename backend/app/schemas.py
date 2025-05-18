@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields
 
+
 class BookSchema(Schema):
     """
     Схема сериализации/десериализации для модели Book с помощью marshmallow.

@@ -17,7 +17,7 @@ def book_payload(owner_id, title="Book", author="Author"):
 
 def invalid_book_payload():
     """
-    Генерирует некорректный payload для создания книги (без обязательных полей).
+    Генерирует некорректный payload для создания книги.
     :return: dict
     """
     return {"title": "", "author": "", "owner_id": None}

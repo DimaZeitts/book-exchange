@@ -1,5 +1,6 @@
 import re
 
+
 def is_valid_email(email):
     """
     Проверяет, соответствует ли email простому регулярному выражению.
@@ -23,7 +24,7 @@ def test_valid_email():
 
 def test_required_field():
     """
-    Проверяет, что функция is_required 
+    Проверяет, что функция is_required
     корректно определяет обязательность поля.
     """
     def is_required(value):

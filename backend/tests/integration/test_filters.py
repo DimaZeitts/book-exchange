@@ -93,11 +93,21 @@ def test_filter_by_is_available(client):
     user_id = create_user(client)
     client.post(
         '/books',
-        json=book_payload("Book1", "AuthorA", is_available=True, owner_id=user_id)
+        json=book_payload(
+            "Book1",
+            "AuthorA",
+            is_available=True,
+            owner_id=user_id
+        )
     )
     client.post(
         '/books',
-        json=book_payload("Book2", "AuthorB", is_available=False, owner_id=user_id)
+        json=book_payload(
+            "Book2",
+            "AuthorB",
+            is_available=False,
+            owner_id=user_id
+        )
     )
     response = client.get('/books?is_available=true')
     assert response.status_code == 200
@@ -111,7 +121,8 @@ def test_filter_by_is_available(client):
 
 def test_filter_empty_result(client):
     """
-    Проверяет, что фильтрация по несуществующему значению возвращает пустой список.
+    Проверяет, что фильтрация по несуществующему значению
+    возвращает пустой список.
     """
     user_id = create_user(client)
     client.post(

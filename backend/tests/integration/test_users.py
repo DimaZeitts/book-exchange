@@ -2,6 +2,7 @@ import pytest
 from app import create_app, db
 import uuid
 
+
 def user_payload(username="testuser", email="testuser@example.com"):
     """
     Генерирует словарь с данными пользователя для тестов.
@@ -83,8 +84,13 @@ def test_update_user(client):
     """
     resp = client.post('/users', json=user_payload())
     user_id = resp.get_json()['id']
-    response = client.put(f'/users/{user_id}', json={"username": "updated",
-                                                      "email": "updated@example.com"})
+    response = client.put(
+        f'/users/{user_id}',
+        json={
+            "username": "updated",
+            "email": "updated@example.com"
+        }
+    )
     assert response.status_code == 200
     data = response.get_json()
     assert data['username'] == "updated"
@@ -93,7 +99,8 @@ def test_update_user(client):
 
 def test_delete_user(client):
     """
-    Проверяет удаление пользователя через DELETE /users/<id> и отсутствие после удаления.
+    Проверяет удаление пользователя через
+    DELETE /users/<id> и отсутствие после удаления.
     Ожидает 204 и 404 при повторном запросе.
     """
     resp = client.post('/users', json=user_payload())

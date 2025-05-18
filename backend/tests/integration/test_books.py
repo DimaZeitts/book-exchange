@@ -1,6 +1,14 @@
 import pytest
 from app import create_app, db
 
+
+def user_payload(username, email):
+    return {
+        "username": username,
+        "email": email
+    }
+
+
 @pytest.fixture
 def client():
     app = create_app()
@@ -15,10 +23,7 @@ def client():
 
 
 def create_user(client, username="testuser", email="testuser@example.com"):
-    response = client.post('/users', json={
-        "username": username,
-        "email": email
-    })
+    response = client.post('/users', json=user_payload(username, email))
     assert response.status_code == 201
     return response.get_json()["id"]
 

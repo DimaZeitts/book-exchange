@@ -26,3 +26,4 @@ services:
 
 volumes:
   postgres_data:
+    name: book_exchange_postgres_data
