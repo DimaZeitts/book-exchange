@@ -14,7 +14,7 @@ test_backend:
     - echo "Устанавливаю зависимости"
     - pip install --upgrade pip
     - pip install -r backend/requirements.txt
-    - cd backend
+    - cd backend/tests/unit
   script:
     - pytest -v tests/unit
   timeout: 10 minutes
