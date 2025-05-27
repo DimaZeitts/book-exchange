@@ -8,6 +8,8 @@ variables:
 test_backend:
   stage: test
   image: python:3.10
+  tags:
+    - students-buildkit-medium
   before_script:
     - echo "Устанавливаю зависимости"
     - pip install --upgrade pip
